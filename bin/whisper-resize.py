@@ -44,7 +44,7 @@ class Approximator(object):
     right_value = float(self.values[right_timestamp_id])
     right_timestamp = self.timestamps[right_timestamp_id]
     # Preserve gaps on a graph
-    if min((timestamp-left_timestamp),(right_timestamp-timestamp)) > max_gap:
+    if (max_gap is not None) and (min((timestamp-left_timestamp),(right_timestamp-timestamp)) > max_gap):
         return None
     k = (right_value - left_value) / (right_timestamp - left_timestamp)
     v = left_value + k * (timestamp - left_timestamp)
@@ -210,7 +210,7 @@ elif options.approximate:
     untilTime = now + now % step + step
     new_datapoints = []
     for ts in xrange(fromTime, untilTime, step):
-      val = approximator.linearValue(ts, max_gap=step*2)
+      val = approximator.linearValue(ts)
       if val is not None:
         new_datapoints.append((ts, val))
     whisper.update_many(newfile, new_datapoints)
