@@ -56,8 +56,10 @@ def ccmerge(path_from, path_to):
   Works only with archives having the same retention schema.
   Only datapoints missing in the destination archive are copied
   (i.e. existing datapoints in the destination archive do not get overwritten)"""
+  import fcntl
   map_from = mmap_file(path_from)
   fd = os.open(path_to, os.O_RDWR)
+  fcntl.flock(fd, fcntl.LOCK_EX)
   map_to = mmap.mmap(fd, 0, prot=mmap.PROT_WRITE)
   dstHeader = whisper.info(path_from)
   srcHeader = whisper.info(path_to)
