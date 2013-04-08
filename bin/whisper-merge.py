@@ -48,6 +48,7 @@ def seriesStart(archive, map):
       (timestamp, value) = whisper.struct.unpack(whisper.pointFormat, map[offset:offset+whisper.pointSize])
       if timestamp != 0:
         return timestamp - point * step
+    return None
 
 def ccmerge(path_from, path_to):
   """Carbon-copy style of merge: instead of propagating datapoints
@@ -73,6 +74,12 @@ def ccmerge(path_from, path_to):
   for srcArchive, dstArchive in zip(srcArchives, dstArchives):
     srcArchiveStart = seriesStart(srcArchive, map_from)
     dstArchiveStart = seriesStart(dstArchive, map_to)
+    # source archive is empty => nothing to copy
+    if srcArchiveStart is None:
+        continue
+    # destination archive is empty => does not matter which postition we put data to
+    if dstArchiveStart is None:
+        dstArchiveStart = 0
     # find the difference in alignment
     step = srcArchive['secondsPerPoint']
     alignmentDiff = (dstArchiveStart - srcArchiveStart) / step # offset in number of datapoints between source and destination archives
